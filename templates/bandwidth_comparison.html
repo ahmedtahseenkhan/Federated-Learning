@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bandwidth Comparison</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Same styles as index.html */
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-button">← Back to Dashboard</a>
+        <h1>Bandwidth Comparison</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="node-select">Select Node Count:</label>
+                <select id="node-select">
+                    <option value="50">50 Nodes</option>
+                    <option value="75">75 Nodes</option>
+                    <option value="100">100 Nodes</option>
+                    <option value="125">125 Nodes</option>
+                    <option value="150">150 Nodes</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div id="loading" class="loading">Loading chart data...</div>
+            <img id="chart-img" class="chart-img" src="" alt="Bandwidth Chart" style="display: none;">
+        </div>
+        
+        <div class="legend">
+            <!-- Same legend as index.html -->
+        </div>
+    </div>
+
+    <script>
+        function loadBandwidthChart() {
+            const nodes = document.getElementById('node-select').value;
+            const loadingDiv = document.getElementById('loading');
+            const chartImg = document.getElementById('chart-img');
+            
+            loadingDiv.style.display = 'block';
+            chartImg.style.display = 'none';
+            
+            fetch(`/get_bar_chart?metric=bandwidth`)
+                .then(response => response.json())
+                .then(data => {
+                    chartImg.onload = function() {
+                        loadingDiv.style.display = 'none';
+                        chartImg.style.display = 'block';
+                    };
+                    chartImg.src = data.image;
+                })
+                .catch(error => {
+                    console.error('Error loading chart:', error);
+                    loadingDiv.innerHTML = 'Error loading chart. Please try again.';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBandwidthChart();
+            document.getElementById('node-select').addEventListener('change', loadBandwidthChart);
+        });
+    </script>
+</body>
+</html>

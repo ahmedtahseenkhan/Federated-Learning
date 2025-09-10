@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metric.capitalize() }} Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+        .chart-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        .metric-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-nav a {
+            padding: 8px 16px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #495057;
+        }
+        .metric-nav a.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-button">← Back to Dashboard</a>
+        <h1>{{ metric.capitalize() }} Comparison</h1>
+        <p>Comparison across different time intervals</p>
+        
+        <div class="metric-nav">
+            <a href="/metric-comparison/bandwidth" {% if metric == 'bandwidth' %}class="active"{% endif %}>Bandwidth</a>
+            <a href="/metric-comparison/latency" {% if metric == 'latency' %}class="active"{% endif %}>Latency</a>
+            <a href="/metric-comparison/resources" {% if metric == 'resources' %}class="active"{% endif %}>Resources</a>
+            <a href="/metric-comparison/energy" {% if metric == 'energy' %}class="active"{% endif %}>Energy</a>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <div id="loading" class="loading">Loading {{ metric }} comparison charts...</div>
+        <img id="chart-img" class="chart-img" src="" alt="{{ metric.capitalize() }} Comparison Charts" style="display: none;">
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #4CAF50;"></div>
+            <span>Federated Learning</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #2196F3;"></div>
+            <span>DQN</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF9800;"></div>
+            <span>Genetic Algorithm</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #F44336;"></div>
+            <span>Evolutionary Algorithm</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingDiv = document.getElementById('loading');
+            const chartImg = document.getElementById('chart-img');
+            
+            loadingDiv.style.display = 'block';
+            chartImg.style.display = 'none';
+            
+            fetch('/get_metric_charts/{{ metric }}')
+                .then(response => response.json())
+                .then(data => {
+                    chartImg.onload = function() {
+                        loadingDiv.style.display = 'none';
+                        chartImg.style.display = 'block';
+                    };
+                    chartImg.src = data.image;
+                })
+                .catch(error => {
+                    console.error('Error loading charts:', error);
+                    loadingDiv.innerHTML = 'Error loading charts. Please try again.';
+                });
+        });
+    </script>
+</body>
+</html>
